@@ -169,22 +169,21 @@ class FlagBehavior extends Behavior
         $table = ($prefixTablename) ? $this->owner->tableName().'.' : '';
         $class = (new \ReflectionClass($this->owner))->getShortName();
 
-        foreach($flags as $key => $value)
-        {
-          if ((isset($this->attributes[$key])) && ((bool)$value === false)) {
-            $falseFlags[] = $this->attributes[$key];
-          } else {
-            if (isset($this->attributes[$key])) {
-              $trueFlags[] = $this->attributes[$key];
+        foreach($flags as $key => $value) {
+            if ((isset($this->attributes[$key])) && ((bool)$value === false)) {
+                $falseFlags[] = $this->attributes[$key];
             } else {
-              $trueFlags[] = $this->attributes[$value];
+                if (isset($this->attributes[$key])) {
+                    $trueFlags[] = $this->attributes[$key];
+                } else {
+                    $trueFlags[] = $this->attributes[$value];
+                }
             }
-          }
         }
 
         if (!empty($trueFlags)) {
             $tvalue = $this->mergeFlags($trueFlags);
-            $query->andWhere($table."[[{$this->flagsAttribute}]] & :tvalue{$class} != 0", [":tvalue{$class}" => $tvalue]);
+            $query->andWhere($table."[[{$this->flagsAttribute}]] & :tvalue{$class} = :tvalue{$class}", [":tvalue{$class}" => $tvalue]);
         }
 
         if (!empty($falseFlags)) {
@@ -194,7 +193,6 @@ class FlagBehavior extends Behavior
 
         return $query;
     }
-
     /**
      * Get flag value
      * @param $name
